@@ -1542,7 +1542,7 @@ class Snapshots:
         min_id = SID(min_date, self.config)
         max_id = SID(max_date, self.config)
 
-        logger.debug("Keep all >= %s and < %s" %(min_id, max_id), self)
+        logger.debug("Keep all >= %s and < %s" %(min_id.withoutTag, max_id.withoutTag), self)
 
         return set([sid for sid in snapshots if sid >= min_id and sid < max_id])
 
@@ -1570,7 +1570,7 @@ class Snapshots:
         min_id = SID(min_date, self.config)
         max_id = SID(max_date, self.config)
 
-        logger.debug("Keep first >= %s and < %s" %(min_id, max_id), self)
+        logger.debug("Keep first >= %s and < %s" %(min_id.withoutTag, max_id.withoutTag), self)
 
         for sid in snapshots:
             # try to keep the first healthy snapshot
