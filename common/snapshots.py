@@ -1691,7 +1691,7 @@ class Snapshots:
                 keep |= self.smartRemoveKeepFirst(
                     snapshots,
                     d,
-                    d + datetime.timedelta(days=8),
+                    d + datetime.timedelta(days=7),
                     keep_healthy=True)
                 d -= datetime.timedelta(days=7)
 
