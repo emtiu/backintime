@@ -27,6 +27,7 @@ General Public License v2 (GPLv2). See LICENSES directory or go to
    * [What is the meaning of the leading 11 characters (e.g. "cf...p.....") in my snapshot logs?](#what-is-the-meaning-of-the-leading-11-characters-eg-cfp-in-my-snapshot-logs)
    * [Snapshot "WITH ERRORS": [E] 'rsync' ended with exit code 23: See 'man rsync' for more details](#snapshot-with-errors-e-rsync-ended-with-exit-code-23-see-man-rsync-for-more-details)
    * [What happens when I remove a snapshot?](#what-happens-when-i-remove-a-snapshot)
+   * [How can I exclude cache folders to improve backup speed and reduce storage?](#how-can-i-exclude-cache-folders-to-improve-backup-speed-and-reduce-storage)
 - [Restore](#restore)
    * [After Restore I have duplicates with extension ".backup.20131121"](#after-restore-i-have-duplicates-with-extension-backup20131121)
    * [Back In Time doesn't find my old Snapshots on my new Computer](#back-in-time-doesnt-find-my-old-snapshots-on-my-new-computer)
@@ -54,9 +55,10 @@ General Public License v2 (GPLv2). See LICENSES directory or go to
    * [How to use Synology DSM 6 with BIT over SSH](#how-to-use-synology-dsm-6-with-bit-over-ssh)
    * [How to use Synology DSM 7 with BIT over SSH](#how-to-use-synology-dsm-7-with-bit-over-ssh)
    * [How to use Western Digital MyBook World Edition with BIT over ssh?](#how-to-use-western-digital-mybook-world-edition-with-bit-over-ssh)
-- [Uncategorized questions](#uncategorized-questions)
-   * [Which additional features on top of a GUI does BIT provide over a self-configured rsync backup? I saw that it saves the names for uids and gids, so I assume it can restore correctly even if the ids change. Great! :-) Are there additional benefits?](#which-additional-features-on-top-of-a-gui-does-bit-provide-over-a-self-configured-rsync-backup-i-saw-that-it-saves-the-names-for-uids-and-gids-so-i-assume-it-can-restore-correctly-even-if-the-ids-change-great---are-there-additional-benefits)
+- [Project & more](#project--more)
+   * [Which additional features on top of a GUI does BIT provide over a self-configured rsync backup? Are there additional benefits?](#which-additional-features-on-top-of-a-gui-does-bit-provide-over-a-self-configured-rsync-backup-are-there-additional-benefits)
    * [Support for specific package formats (deb, rpm, Flatpack, AppImage, Snaps, PPA, …)](#support-for-specific-package-formats-deb-rpm-flatpack-appimage-snaps-ppa-)
+   * [Move project to alternative code hoster (e.g. Codeberg, GitLab, …)](#move-project-to-alternative-code-hoster-eg-codeberg-gitlab-)
 - [Testing & Building](#testing--building)
    * [SSH related tests are skipped](#ssh-related-tests-are-skipped)
    * [Setup SSH Server to run unit tests](#setup-ssh-server-to-run-unit-tests)
@@ -408,6 +410,59 @@ snapshot removes this whole directory.  Each snapshot is independent of the
 others, so other snapshots are not affected. However, the data of identical files is
 not stored redundantly by multiple snapshots, so removing a snapshot will only
 recover the space used by files that are unique to that snapshot.
+
+## How can I exclude cache folders to improve backup speed and reduce storage?
+
+**Why exclude cache folders?**
+
+Cache folders typically contain temporary files that are not necessary for backups. 
+Excluding them can significantly improve backup speed and reduce storage usage.
+
+**How to exclude cache folders:**
+
+1. Open Back in Time.
+2. Go to the **Exclude Patterns** settings:
+   - Click the "Exclude" tab in the configuration window.
+   - Click the **Add** button to create a new exclude pattern.
+
+3. Add the following patterns to exclude common cache directories:
+   ```plaintext
+   .var/app/**/[Cc]ache/
+   .var/app/**/media_cache/
+   .mozilla/firefox/**/cache/
+   .config/BraveSoftware/Brave-Browser/Default/Service Worker/CacheStorage/
+   ```
+
+**Explanation**:
+
+- `/**/` matches any directory structure leading to the specified folder.
+- `[Cc]ache` matches folder names with either uppercase or lowercase "Cache."
+
+4. Decide whether to include or exclude the folder itself:
+   - To exclude only the folder’s content, use `/*` at the end of the pattern:
+     ```plaintext
+     .var/app/**/[Cc]ache/*
+     ```
+   - To exclude the folder and its contents, omit the `/*`:
+     ```plaintext
+     .var/app/**/[Cc]ache/
+     ```
+
+**Tips for better results:**
+
+- **Check Backup Logs**:  
+  After running a backup, review the logs to identify additional folders that may 
+  slow down the process. Example log entries for cache files:
+  ```plaintext
+  [E] Skipping file /path/to/cache/file: Too many small files.
+  ```
+
+- **Customize Patterns**:  
+  Adjust the patterns to suit your specific applications. For example, modify paths 
+  for browsers or other software you use.
+
+- **Test Exclude Patterns**:  
+  Test your backup after adding patterns to ensure they work as intended.
 
 
 # Restore
@@ -1173,9 +1228,9 @@ documentation about Optware on http://mybookworld.wikidot.com/optware.
    ```
 
 
-# Uncategorized questions
+# Project & more
 
-## Which additional features on top of a GUI does BIT provide over a self-configured rsync backup? I saw that it saves the names for uids and gids, so I assume it can restore correctly even if the ids change. Great! :-) Are there additional benefits?
+## Which additional features on top of a GUI does BIT provide over a self-configured rsync backup? Are there additional benefits?
 
 Actually it's the other way around ;) *Back In Time* stores the user and group name
 which will make it possible to restore permissions correctly even if UID/GID
@@ -1206,6 +1261,18 @@ need to prioritize tasks. Another reasons is that their are distro maintainers
 with much more experience and skills in packaging. We always recommend using
 the official repositories of GNU/Linux distributions and contacting their
 maintainers if _Back In Time_ is unavailable or out dated.
+
+
+## Move project to alternative code hoster (e.g. Codeberg, GitLab, …)
+
+We also believe that staying with Microsoft GitHub is not a good idea. Microsoft
+GitHub does not offer any exclusive feature for our project that another hoster
+could not also provide. But a migration is a matter of time and resources we
+currently do not have. But it is on our list. And with the current state of
+discussion we seem to target [Codeberg.org](https://codeberg.org).
+
+For more details please see
+[this thread on the mailing list](https://mail.python.org/archives/list/bit-dev@python.org/message/O5XZ5SPW6WIFBFKWUBHSOUIBKEUIBPNM/).
 
 
 # Testing & Building
